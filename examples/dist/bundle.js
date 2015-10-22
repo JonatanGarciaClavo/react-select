@@ -992,21 +992,31 @@ var Select = React.createClass({
 			'has-value': this.state.value
 		});
 		var value = [];
-		if (this.props.multi && this.props.removeOptionsFromList) {
-			this.state.values.forEach(function (val) {
-				var onOptionLabelClick = this.handleOptionLabelClick.bind(this, val);
-				var onRemove = this.removeValue.bind(this, val);
-				var valueComponent = React.createElement(this.props.valueComponent, {
-					key: val.value,
-					option: val,
-					renderer: this.props.valueRenderer,
-					optionLabelClick: !!this.props.onOptionLabelClick,
-					onOptionLabelClick: onOptionLabelClick,
-					onRemove: onRemove,
-					disabled: this.props.disabled
+		if (this.props.multi) {
+			if (this.props.removeOptionsFromList) {
+				this.state.values.forEach(function (val) {
+					var onOptionLabelClick = this.handleOptionLabelClick.bind(this, val);
+					var onRemove = this.removeValue.bind(this, val);
+					var valueComponent = React.createElement(this.props.valueComponent, {
+						key: val.value,
+						option: val,
+						renderer: this.props.valueRenderer,
+						optionLabelClick: !!this.props.onOptionLabelClick,
+						onOptionLabelClick: onOptionLabelClick,
+						onRemove: onRemove,
+						disabled: this.props.disabled
+					});
+					value.push(valueComponent);
+				}, this);
+			} else {
+				var val = this.state.values.length + 'users';
+				var singleValueComponent = React.createElement(this.props.singleValueComponent, {
+					key: 'placeholder',
+					value: val,
+					placeholder: this.state.placeholder
 				});
-				value.push(valueComponent);
-			}, this);
+				value.push(singleValueComponent);
+			}
 		}
 
 		if (!this.state.inputValue && (!this.props.multi || !value.length)) {
@@ -1025,16 +1035,6 @@ var Select = React.createClass({
 				});
 				value.push(singleValueComponent);
 			}
-		}
-
-		if (!this.props.removeOptionsFromList) {
-			var val = this.state.values.length || null;
-			var singleValueComponent = React.createElement(this.props.singleValueComponent, {
-				key: 'placeholder',
-				value: val,
-				placeholder: this.state.placeholder
-			});
-			value.push(singleValueComponent);
 		}
 
 		var loading = this.isLoading() ? React.createElement('span', { className: 'Select-loading', 'aria-hidden': 'true' }) : null;
