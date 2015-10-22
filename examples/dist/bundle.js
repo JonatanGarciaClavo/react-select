@@ -1010,7 +1010,7 @@ var Select = React.createClass({
 				}, this);
 			} else {
 				var val = this.state.values.length + 'users';
-				if (this.props.valueRenderer && !!this.state.values.length) {
+				if (this.props.valueRenderer) {
 					value.push(React.createElement(Value, {
 						key: 0,
 						option: val,
