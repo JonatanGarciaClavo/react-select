@@ -738,7 +738,10 @@ var Select = React.createClass({
 			var ref = isFocused ? 'focused' : null;
 			var mouseEnter = this.focusOption.bind(this, op);
 			var mouseLeave = this.unfocusOption.bind(this, op);
-			var mouseDown = function(e) { e.stopPropagation(); that.selectValue.apply(that, op); };
+			var mouseDown = function(e) {
+				e.stopPropagation();
+				that.selectValue.call(that, op);
+			};
 			var optionResult = React.createElement(this.props.optionComponent, {
 				key: 'option-' + op[this.props.valueKey],
 				className: optionClass,
