@@ -326,7 +326,9 @@ var Select = React.createClass({
 	},
 
 	addValue (value) {
-		this.setValue(this.state.values.concat(value));
+		if(this.state.values.split(',').indexOf(value) === -1) {
+			this.setValue(this.state.values.concat(value));
+		}
 	},
 
 	popValue () {
@@ -719,7 +721,7 @@ var Select = React.createClass({
 		}
 		var ops = Object.keys(options).map(function(key) {
 			var op = options[key];
-			var isSelected = this.state.value === op[this.props.valueKey];
+			var isSelected = this.state.value.split(',').indexOf(''+op[this.props.valueKey]) > -1;
 			var isFocused = focusedValue === op[this.props.valueKey];
 			var optionClass = classes({
 				'Select-option': true,
