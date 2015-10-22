@@ -899,12 +899,20 @@ var Select = React.createClass({
 				}, this);
 			} else {
 				var val = this.state.values.length + 'users';
-				var singleValueComponent = React.createElement(this.props.singleValueComponent, {
-					key: 'placeholder',
-					value: val,
-					placeholder: this.state.placeholder
-				});
-				value.push(singleValueComponent);
+				if (this.props.valueRenderer && !!this.state.values.length) {
+					value.push(React.createElement(Value, {
+						key: 0,
+						option: val,
+						renderer: this.props.valueRenderer,
+						disabled: this.props.disabled }));
+				} else {
+					var singleValueComponent = React.createElement(this.props.singleValueComponent, {
+						key: 'placeholder',
+						value: val,
+						placeholder: this.state.placeholder
+					});
+					value.push(singleValueComponent);
+				}
 			}
 		}
 
