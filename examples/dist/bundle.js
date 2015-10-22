@@ -11,6 +11,7 @@ var Option = React.createClass({
 		addLabelText: React.PropTypes.string, // string rendered in case of allowCreate option passed to ReactSelect
 		className: React.PropTypes.string, // className (based on mouse position)
 		mouseDown: React.PropTypes.func, // method to handle click on option element
+		click: React.PropTypes.func, // method to handle click on option element
 		mouseEnter: React.PropTypes.func, // method to handle mouseEnter on option element
 		mouseLeave: React.PropTypes.func, // method to handle mouseLeave on option element
 		option: React.PropTypes.object.isRequired, // object that is base for that option
@@ -48,7 +49,7 @@ var Option = React.createClass({
 				onMouseEnter: this.props.mouseEnter,
 				onMouseLeave: this.props.mouseLeave,
 				onMouseDown: this.props.mouseDown,
-				onClick: this.props.mouseDown,
+				onClick: this.props.click,
 				title: obj.title },
 			obj.create ? this.props.addLabelText.replace('{label}', obj.label) : renderedLabel
 		);
@@ -939,8 +940,8 @@ var Select = React.createClass({
 				renderFunc: renderLabel,
 				mouseEnter: mouseEnter,
 				mouseLeave: mouseLeave,
-				mouseDown: mouseDown,
-				// click: mouseDown,
+				// mouseDown: mouseDown,
+				click: mouseDown,
 				addLabelText: this.props.addLabelText,
 				option: op,
 				ref: ref

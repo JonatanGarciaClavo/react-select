@@ -748,8 +748,8 @@ var Select = React.createClass({
 				renderFunc: renderLabel,
 				mouseEnter: mouseEnter,
 				mouseLeave: mouseLeave,
-				mouseDown: mouseDown,
-				// click: mouseDown,
+				// mouseDown: mouseDown,
+				click: mouseDown,
 				addLabelText: this.props.addLabelText,
 				option: op,
 				ref: ref
