@@ -389,7 +389,7 @@ var Select = React.createClass({
 		} else if (value) {
 			this.addValue(value);
 		}
-		this._unbindCloseMenuIfClickedOutside();
+		// this._unbindCloseMenuIfClickedOutside();
 	},
 
 	addValue: function addValue(value) {
@@ -814,10 +814,13 @@ var Select = React.createClass({
 				'is-focused': isFocused,
 				'is-disabled': op.disabled
 			});
+			var that = this;
 			var ref = isFocused ? 'focused' : null;
 			var mouseEnter = this.focusOption.bind(this, op);
 			var mouseLeave = this.unfocusOption.bind(this, op);
-			var mouseDown = this.selectValue.bind(this, op);
+			var mouseDown = function mouseDown(e) {
+				e.stopPropagation();that.selectValue.apply(that, op);
+			};
 			var optionResult = React.createElement(this.props.optionComponent, {
 				key: 'option-' + op[this.props.valueKey],
 				className: optionClass,
