@@ -326,7 +326,12 @@ var Select = React.createClass({
 	},
 
 	addValue (value) {
-		if(this.state.values.split(',').indexOf(value) === -1) {
+		var valueToRemove = this.state.values.filter(function (stateValue) {
+			return stateValue === value;
+		});
+		if (valueToRemove) {
+			this.removeValue(valueToRemove);
+		}else{
 			this.setValue(this.state.values.concat(value));
 		}
 	},
