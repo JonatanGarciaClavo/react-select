@@ -389,7 +389,9 @@ var Select = React.createClass({
 		} else if (value) {
 			this.addValue(value);
 		}
-		if (this.props.removeOptionsFromList) this._unbindCloseMenuIfClickedOutside();
+		if (this.props.removeOptionsFromList) {
+			this._unbindCloseMenuIfClickedOutside();
+		}
 	},
 
 	addValue: function addValue(value) {
