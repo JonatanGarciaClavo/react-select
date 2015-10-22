@@ -275,7 +275,7 @@ var Select = React.createClass({
 			value: undefined,
 			valueComponent: Value,
 			valueKey: 'value',
-			removeOptionsFromList: false
+			removeOptionsFromList: true
 		};
 	},
 
@@ -793,14 +793,14 @@ var Select = React.createClass({
 
 	filterOptions: function filterOptions(options, values) {
 		var filterValue = this._optionsFilterString;
-		var exclude = (values || this.state.values).map(function (i) {
+		var exclude = this.props.removeOptionsFromList ? (values || this.state.values).map(function (i) {
 			return i.value;
-		});
+		}) : [];
 		if (this.props.filterOptions) {
 			return this.props.filterOptions.call(this, options, filterValue, exclude);
 		} else {
 			var filterOption = function filterOption(op) {
-				if (this.props.multi && !this.props.removeOptionsFromList && exclude.indexOf(op[this.props.valueKey]) > -1) return false;
+				if (this.props.multi && exclude.indexOf(op[this.props.valueKey]) > -1) return false;
 				if (this.props.filterOption) return this.props.filterOption.call(this, op, filterValue);
 				var valueTest = String(op[this.props.valueKey]);
 				var labelTest = String(op[this.props.labelKey]);
