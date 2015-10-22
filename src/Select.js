@@ -748,7 +748,7 @@ var Select = React.createClass({
 				renderFunc: renderLabel,
 				mouseEnter: mouseEnter,
 				mouseLeave: mouseLeave,
-				mouseDown: mouseDown,
+				// mouseUp: mouseDown,
 				click: mouseDown,
 				addLabelText: this.props.addLabelText,
 				option: op,
@@ -802,7 +802,7 @@ var Select = React.createClass({
 		});
 		var value = [];
 		if (this.props.multi) {
-			// if (this.props.removeOptionsFromList) {
+			if (this.props.removeOptionsFromList) {
 				this.state.values.forEach(function(val) {
 					var onOptionLabelClick = this.handleOptionLabelClick.bind(this, val);
 					var onRemove = this.removeValue.bind(this, val);
@@ -817,15 +817,15 @@ var Select = React.createClass({
 					});
 					value.push(valueComponent);
 				}, this);
-			// } else {
-			// 	var val = this.state.values.length + ' users';
-			// 	var singleValueComponent = React.createElement(this.props.singleValueComponent, {
-			// 		key: 'placeholder',
-			// 		value: val,
-			// 		placeholder: val
-			// 	});
-			// 	value.push(singleValueComponent);
-			// }
+			} else {
+				var val = this.state.values.length + ' users';
+				var singleValueComponent = React.createElement(this.props.singleValueComponent, {
+					key: 'placeholder',
+					value: val,
+					placeholder: val
+				});
+				value.push(singleValueComponent);
+			}
 		}
 
 		if (!this.state.inputValue && (!this.props.multi || !value.length)) {
