@@ -818,20 +818,22 @@ var Select = React.createClass({
 					value.push(valueComponent);
 				}, this);
 			} else {
-				var label = this.state.values.length + ' users';
-				if (this.state.values.length > 0) {
-					value.push(<Value
-						key={0}
-						option={{label:label}}
-						renderer={this.props.valueRenderer}
-						disabled={this.props.disabled} />);
-				} else {
-					var singleValueComponent = React.createElement(this.props.singleValueComponent, {
-						key: 'placeholder',
-						value: null,
-						placeholder: this.state.placeholder
-					});
-					value.push(singleValueComponent);
+				if (!this.state.inputValue) {
+					var label = this.state.values.length + ' users';
+					if (this.state.values.length > 0) {
+						value.push(<Value
+							key={0}
+							option={{label:label}}
+							renderer={this.props.valueRenderer}
+							disabled={this.props.disabled} />);
+					} else {
+						var singleValueComponent = React.createElement(this.props.singleValueComponent, {
+							key: 'placeholder',
+							value: null,
+							placeholder: this.state.placeholder
+						});
+						value.push(singleValueComponent);
+					}
 				}
 			}
 		}
