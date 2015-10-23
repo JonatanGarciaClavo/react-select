@@ -307,7 +307,7 @@ var Select = React.createClass({
 	},
 
 	setValue (value, focusAfterUpdate) {
-		if (focusAfterUpdate || focusAfterUpdate === undefined) {
+		if (this.props.removeOptionsFromList && focusAfterUpdate || focusAfterUpdate === undefined) {
 			this._focusAfterUpdate = true;
 		}
 		var newState = this.getStateFromValue(value);
@@ -822,6 +822,7 @@ var Select = React.createClass({
 					var label = this.state.values.length + ' users';
 					if (this.state.values.length > 0) {
 						value.push(<Value
+							style={{padding: '0 1em', lineHeight:'57px'}}
 							key={0}
 							option={{label:label}}
 							renderer={this.props.valueRenderer}
