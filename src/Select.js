@@ -252,7 +252,9 @@ var Select = React.createClass({
 			focusedOption = values[0];
 			valueForState = values[0][this.props.valueKey];
 		} else {
-			focusedOption = this.getFirstFocusableOption(filteredOptions);
+			if (this.props.removeOptionsFromList) {
+				focusedOption = this.getFirstFocusableOption(filteredOptions);
+			}
 			valueForState = values.map((v) => { return v[this.props.valueKey]; }).join(this.props.delimiter);
 		}
 
@@ -262,7 +264,7 @@ var Select = React.createClass({
 			inputValue: '',
 			filteredOptions: filteredOptions,
 			placeholder: !this.props.multi && values.length ? values[0][this.props.labelKey] : placeholder,
-			focusedOption: focusedOption
+			focusedOption: focusedOption || this.state.focusedOption
 		};
 	},
 
@@ -307,7 +309,7 @@ var Select = React.createClass({
 	},
 
 	setValue (value, focusAfterUpdate) {
-		if (this.props.removeOptionsFromList && focusAfterUpdate || focusAfterUpdate === undefined) {
+		if (focusAfterUpdate || focusAfterUpdate === undefined) {
 			this._focusAfterUpdate = true;
 		}
 		var newState = this.getStateFromValue(value);
@@ -822,7 +824,6 @@ var Select = React.createClass({
 					var label = this.state.values.length + ' users';
 					if (this.state.values.length > 0) {
 						value.push(<Value
-							style={{padding: '0 1em', lineHeight:'57px'}}
 							key={0}
 							option={{label:label}}
 							renderer={this.props.valueRenderer}
