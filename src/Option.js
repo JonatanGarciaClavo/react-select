@@ -24,6 +24,9 @@ var Option = React.createClass({
 			window.location.href = event.target.href;
 		}
 	},
+	handleClick (e) {
+		this.props.click(this.props.option, e);
+	},
 	handleMouseDown (e) {
 		this.props.mouseDown(this.props.option, e);
 	},
@@ -47,10 +50,10 @@ var Option = React.createClass({
 		) : (
 			<div className={optionClasses}
 				style={option.style}
-				onMouseDown={this.handleMouseDown}
+				// onMouseDown={this.handleMouseDown}
 				onMouseEnter={this.handleMouseEnter}
 				onMouseLeave={this.handleMouseLeave}
-				onClick={this.handleMouseDown}
+				onClick={this.handleClick}
 				title={option.title}>
 				{label}
 			</div>
