@@ -9,9 +9,17 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
 var _reactSelect = require('react-select');
 
 var _reactSelect2 = _interopRequireDefault(_reactSelect);
+
+var _componentsContributors = require('./components/Contributors');
+
+var _componentsContributors2 = _interopRequireDefault(_componentsContributors);
 
 var _componentsCustomKeysField = require('./components/CustomKeysField');
 
@@ -57,24 +65,93 @@ function logChange() {
 	console.log.apply(console, [].concat(['Select value changed:'], Array.prototype.slice.apply(arguments)));
 }
 
-_react2['default'].render(_react2['default'].createElement(
+_reactDom2['default'].render(_react2['default'].createElement(
 	'div',
 	null,
 	_react2['default'].createElement(_componentsStatesField2['default'], { label: 'States', searchable: true }),
 	_react2['default'].createElement(_componentsMultiSelectField2['default'], { label: 'Multiselect' }),
+	_react2['default'].createElement(_componentsContributors2['default'], { label: 'Contributors', hint: 'This example uses custom properties for the name and value of options, as well as async options loading' }),
 	_react2['default'].createElement(_componentsUsersField2['default'], { label: 'Users (custom options/value)', hint: 'This example uses Gravatar to render user\'s image besides the value and the options' }),
 	_react2['default'].createElement(_componentsValuesAsNumbersField2['default'], { label: 'Values as numbers' }),
 	_react2['default'].createElement(_componentsCustomKeysField2['default'], { label: 'Custom object keys for options' }),
 	_react2['default'].createElement(_componentsSelectedValuesField2['default'], { label: 'Clickable labels (labels as links)', options: FLAVOURS, hint: 'Open the console to see click behaviour (data/event)' }),
 	_react2['default'].createElement(_componentsSelectedValuesField2['default'], { label: 'Disabled option', options: FLAVOURS_WITH_DISABLED_OPTION, hint: 'You savage! Caramel is the best...' }),
 	_react2['default'].createElement(_componentsDisabledUpsellOptions2['default'], { label: 'Disabled option with a link' }),
-	_react2['default'].createElement(_componentsSelectedValuesField2['default'], { label: 'Option Creation (tags mode)', options: FLAVOURS, allowCreate: true, hint: 'Enter a value that\'s not in the list, then hit enter' }),
+	_react2['default'].createElement(_componentsSelectedValuesField2['default'], { label: 'Option Creation (tags mode)', options: FLAVOURS, allowCreate: true, hint: 'Enter a value that\'s NOT in the list, then hit return' }),
 	_react2['default'].createElement(_componentsCustomRenderField2['default'], { label: 'Custom render options/values' }),
-	_react2['default'].createElement(_componentsCustomRenderField2['default'], { label: 'Custom render options/values (multi)', multi: true, delimiter: ',' }),
 	_react2['default'].createElement(_componentsRemoteSelectField2['default'], { label: 'Remote Options', hint: 'Type anything in the remote example to asynchronously load options. Valid alternative results are "A", "AA", and "AB"' })
 ), document.getElementById('example'));
 
-},{"./components/CustomKeysField":2,"./components/CustomRenderField":4,"./components/DisabledUpsellOptions":6,"./components/MultiSelectField":7,"./components/RemoteSelectField":8,"./components/SelectedValuesField":9,"./components/StatesField":10,"./components/UsersField":11,"./components/ValuesAsNumbersField":12,"react":undefined,"react-select":undefined}],2:[function(require,module,exports){
+},{"./components/Contributors":2,"./components/CustomKeysField":3,"./components/CustomRenderField":5,"./components/DisabledUpsellOptions":7,"./components/MultiSelectField":8,"./components/RemoteSelectField":9,"./components/SelectedValuesField":10,"./components/StatesField":11,"./components/UsersField":12,"./components/ValuesAsNumbersField":13,"react":undefined,"react-dom":undefined,"react-select":undefined}],2:[function(require,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactSelect = require('react-select');
+
+var _reactSelect2 = _interopRequireDefault(_reactSelect);
+
+var CONTRIBUTORS = require('../data/contributors');
+
+var Contributors = _react2['default'].createClass({
+	displayName: 'Contributors',
+	propTypes: {
+		hint: _react2['default'].PropTypes.string,
+		label: _react2['default'].PropTypes.string
+	},
+	getInitialState: function getInitialState() {
+		return {
+			value: 'jedwatson'
+		};
+	},
+	onChange: function onChange(value) {
+		this.setState({
+			value: value
+		});
+	},
+	loadOptions: function loadOptions(input, callback) {
+		console.log(input);
+		input = input.toLowerCase();
+		var data = {
+			options: CONTRIBUTORS.filter(function (i) {
+				return i.github.substr(0, input.length) === input;
+			}),
+			complete: true
+		};
+		setTimeout(function () {
+			callback(null, data);
+		}, 500);
+	},
+	renderHint: function renderHint() {
+		if (!this.props.hint) return null;
+		return _react2['default'].createElement(
+			'div',
+			{ className: 'hint' },
+			this.props.hint
+		);
+	},
+	render: function render() {
+		return _react2['default'].createElement(
+			'div',
+			{ className: 'section' },
+			_react2['default'].createElement(
+				'h3',
+				{ className: 'section-heading' },
+				this.props.label
+			),
+			_react2['default'].createElement(_reactSelect2['default'], { multi: true, value: this.state.value, onChange: this.onChange, valueKey: 'github', labelKey: 'name', asyncOptions: this.loadOptions }),
+			this.renderHint()
+		);
+	}
+});
+
+module.exports = Contributors;
+
+},{"../data/contributors":14,"react":undefined,"react-select":undefined}],3:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -156,7 +233,7 @@ var CustomKeysField = _react2['default'].createClass({
 
 module.exports = CustomKeysField;
 
-},{"react":undefined,"react-select":undefined}],3:[function(require,module,exports){
+},{"react":undefined,"react-select":undefined}],4:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -181,6 +258,15 @@ var Option = _react2['default'].createClass({
 		option: _react2['default'].PropTypes.object.isRequired,
 		renderFunc: _react2['default'].PropTypes.func
 	},
+	handleMouseDown: function handleMouseDown(e) {
+		this.props.mouseDown(this.props.option, e);
+	},
+	handleMouseEnter: function handleMouseEnter(e) {
+		this.props.mouseEnter(this.props.option, e);
+	},
+	handleMouseLeave: function handleMouseLeave(e) {
+		this.props.mouseLeave(this.props.option, e);
+	},
 	render: function render() {
 		var obj = this.props.option;
 		var size = 15;
@@ -195,10 +281,10 @@ var Option = _react2['default'].createClass({
 		return _react2['default'].createElement(
 			'div',
 			{ className: this.props.className,
-				onMouseEnter: this.props.mouseEnter,
-				onMouseLeave: this.props.mouseLeave,
-				onMouseDown: this.props.mouseDown,
-				onClick: this.props.mouseDown },
+				onMouseEnter: this.handleMouseEnter,
+				onMouseLeave: this.handleMouseLeave,
+				onMouseDown: this.handleMouseDown,
+				onClick: this.handleMouseDown },
 			_react2['default'].createElement(_reactGravatar2['default'], { email: obj.email, size: size, style: gravatarStyle }),
 			obj.value
 		);
@@ -207,7 +293,7 @@ var Option = _react2['default'].createClass({
 
 module.exports = Option;
 
-},{"react":undefined,"react-gravatar":18}],4:[function(require,module,exports){
+},{"react":undefined,"react-gravatar":20}],5:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -230,6 +316,14 @@ var CustomRenderField = _react2['default'].createClass({
 		delimiter: _react2['default'].PropTypes.string,
 		label: _react2['default'].PropTypes.string,
 		multi: _react2['default'].PropTypes.bool
+	},
+	getInitialState: function getInitialState() {
+		return {};
+	},
+	onChangeMulti: function onChangeMulti(event) {
+		this.setState({
+			multi: event.target.checked
+		});
 	},
 	renderOption: function renderOption(option) {
 		return _react2['default'].createElement(
@@ -260,20 +354,34 @@ var CustomRenderField = _react2['default'].createClass({
 			),
 			_react2['default'].createElement(_reactSelect2['default'], {
 				delimiter: this.props.delimiter,
-				multi: this.props.multi,
+				multi: this.state.multi,
 				allowCreate: true,
 				placeholder: 'Select your favourite',
 				options: ops,
 				optionRenderer: this.renderOption,
 				valueRenderer: this.renderValue,
-				onChange: logChange })
+				onChange: logChange }),
+			_react2['default'].createElement(
+				'div',
+				{ className: 'checkbox-list' },
+				_react2['default'].createElement(
+					'label',
+					{ className: 'checkbox' },
+					_react2['default'].createElement('input', { type: 'checkbox', className: 'checkbox-control', checked: this.state.multi, onChange: this.onChangeMulti }),
+					_react2['default'].createElement(
+						'span',
+						{ className: 'checkbox-label' },
+						'Multi-Select'
+					)
+				)
+			)
 		);
 	}
 });
 
 module.exports = CustomRenderField;
 
-},{"react":undefined,"react-select":undefined}],5:[function(require,module,exports){
+},{"react":undefined,"react-select":undefined}],6:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -320,7 +428,7 @@ var SingleValue = _react2['default'].createClass({
 
 module.exports = SingleValue;
 
-},{"react":undefined,"react-gravatar":18}],6:[function(require,module,exports){
+},{"react":undefined,"react-gravatar":20}],7:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -383,7 +491,7 @@ var DisabledUpsellOptions = _react2['default'].createClass({
 });
 module.exports = DisabledUpsellOptions;
 
-},{"react":undefined,"react-select":undefined}],7:[function(require,module,exports){
+},{"react":undefined,"react-select":undefined}],8:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -449,7 +557,7 @@ var MultiSelectField = _react2['default'].createClass({
 
 module.exports = MultiSelectField;
 
-},{"react":undefined,"react-select":undefined}],8:[function(require,module,exports){
+},{"react":undefined,"react-select":undefined}],9:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -519,7 +627,7 @@ var RemoteSelectField = _react2['default'].createClass({
 
 module.exports = RemoteSelectField;
 
-},{"react":undefined,"react-select":undefined}],9:[function(require,module,exports){
+},{"react":undefined,"react-select":undefined}],10:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -579,7 +687,7 @@ var SelectedValuesField = _react2['default'].createClass({
 
 module.exports = SelectedValuesField;
 
-},{"react":undefined,"react-select":undefined}],10:[function(require,module,exports){
+},{"react":undefined,"react-select":undefined}],11:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -712,7 +820,7 @@ var StatesField = _react2['default'].createClass({
 
 module.exports = StatesField;
 
-},{"../data/states":13,"react":undefined,"react-select":undefined}],11:[function(require,module,exports){
+},{"../data/states":15,"react":undefined,"react-select":undefined}],12:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -765,7 +873,7 @@ var UsersField = _react2['default'].createClass({
 				placeholder: 'Select user',
 				optionComponent: _CustomOption2['default'],
 				singleValueComponent: _CustomSingleValue2['default'],
-				options: USERS.users }),
+				options: USERS }),
 			this.renderHint()
 		);
 	}
@@ -773,7 +881,7 @@ var UsersField = _react2['default'].createClass({
 
 module.exports = UsersField;
 
-},{"../data/users":14,"./CustomOption":3,"./CustomSingleValue":5,"react":undefined,"react-select":undefined}],12:[function(require,module,exports){
+},{"../data/users":16,"./CustomOption":4,"./CustomSingleValue":6,"react":undefined,"react-select":undefined}],13:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -917,19 +1025,24 @@ var ValuesAsNumbersField = _react2['default'].createClass({
 
 module.exports = ValuesAsNumbersField;
 
-},{"react":undefined,"react-select":undefined}],13:[function(require,module,exports){
+},{"react":undefined,"react-select":undefined}],14:[function(require,module,exports){
+'use strict';
+
+module.exports = [{ github: 'jedwatson', name: 'Jed Watson' }, { github: 'bruderstein', name: 'Dave Brotherstone' }, { github: 'jossmac', name: 'Joss Mackison' }, { github: 'jniechcial', name: 'Jakub Niechciał' }, { github: 'craigdallimore', name: 'Craig Dallimore' }, { github: 'julen', name: 'Julen Ruiz Aizpuru' }, { github: 'dcousens', name: 'Daniel Cousens' }, { github: 'jgautsch', name: 'Jon Gautsch' }, { github: 'dmitry-smirnov', name: 'Dmitry Smirnov' }];
+
+},{}],15:[function(require,module,exports){
 'use strict';
 
 exports.AU = [{ value: 'australian-capital-territory', label: 'Australian Capital Territory' }, { value: 'new-south-wales', label: 'New South Wales' }, { value: 'victoria', label: 'Victoria' }, { value: 'queensland', label: 'Queensland' }, { value: 'western-australia', label: 'Western Australia' }, { value: 'south-australia', label: 'South Australia' }, { value: 'tasmania', label: 'Tasmania' }, { value: 'northern-territory', label: 'Northern Territory' }];
 
 exports.US = [{ value: 'AL', label: 'Alabama', disabled: true }, { value: 'AK', label: 'Alaska' }, { value: 'AS', label: 'American Samoa' }, { value: 'AZ', label: 'Arizona' }, { value: 'AR', label: 'Arkansas' }, { value: 'CA', label: 'California' }, { value: 'CO', label: 'Colorado' }, { value: 'CT', label: 'Connecticut' }, { value: 'DE', label: 'Delaware' }, { value: 'DC', label: 'District Of Columbia' }, { value: 'FM', label: 'Federated States Of Micronesia' }, { value: 'FL', label: 'Florida' }, { value: 'GA', label: 'Georgia' }, { value: 'GU', label: 'Guam' }, { value: 'HI', label: 'Hawaii' }, { value: 'ID', label: 'Idaho' }, { value: 'IL', label: 'Illinois' }, { value: 'IN', label: 'Indiana' }, { value: 'IA', label: 'Iowa' }, { value: 'KS', label: 'Kansas' }, { value: 'KY', label: 'Kentucky' }, { value: 'LA', label: 'Louisiana' }, { value: 'ME', label: 'Maine' }, { value: 'MH', label: 'Marshall Islands' }, { value: 'MD', label: 'Maryland' }, { value: 'MA', label: 'Massachusetts' }, { value: 'MI', label: 'Michigan' }, { value: 'MN', label: 'Minnesota' }, { value: 'MS', label: 'Mississippi' }, { value: 'MO', label: 'Missouri' }, { value: 'MT', label: 'Montana' }, { value: 'NE', label: 'Nebraska' }, { value: 'NV', label: 'Nevada' }, { value: 'NH', label: 'New Hampshire' }, { value: 'NJ', label: 'New Jersey' }, { value: 'NM', label: 'New Mexico' }, { value: 'NY', label: 'New York' }, { value: 'NC', label: 'North Carolina' }, { value: 'ND', label: 'North Dakota' }, { value: 'MP', label: 'Northern Mariana Islands' }, { value: 'OH', label: 'Ohio' }, { value: 'OK', label: 'Oklahoma' }, { value: 'OR', label: 'Oregon' }, { value: 'PW', label: 'Palau' }, { value: 'PA', label: 'Pennsylvania' }, { value: 'PR', label: 'Puerto Rico' }, { value: 'RI', label: 'Rhode Island' }, { value: 'SC', label: 'South Carolina' }, { value: 'SD', label: 'South Dakota' }, { value: 'TN', label: 'Tennessee' }, { value: 'TX', label: 'Texas' }, { value: 'UT', label: 'Utah' }, { value: 'VT', label: 'Vermont' }, { value: 'VI', label: 'Virgin Islands' }, { value: 'VA', label: 'Virginia' }, { value: 'WA', label: 'Washington' }, { value: 'WV', label: 'West Virginia' }, { value: 'WI', label: 'Wisconsin' }, { value: 'WY', label: 'Wyoming' }];
 
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
-exports.users = [{ value: 'John Smith', label: 'John Smith', email: 'john@smith.com' }, { value: 'Merry Jane', label: 'Merry Jane', email: 'merry@jane.com' }, { value: 'Stan Hoper', label: 'Stan Hoper', email: 'stan@hoper.com' }];
+module.exports = [{ value: 'John Smith', label: 'John Smith', email: 'john@smith.com' }, { value: 'Merry Jane', label: 'Merry Jane', email: 'merry@jane.com' }, { value: 'Stan Hoper', label: 'Stan Hoper', email: 'stan@hoper.com' }];
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1015,7 +1128,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1102,14 +1215,14 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":15,"./encode":16}],18:[function(require,module,exports){
-// Generated by CoffeeScript 1.9.3
+},{"./decode":17,"./encode":18}],20:[function(require,module,exports){
+// Generated by CoffeeScript 1.10.0
 var React, isRetina, md5, querystring;
 
 React = require('react');
@@ -1141,10 +1254,15 @@ module.exports = React.createClass({
     };
   },
   render: function() {
-    var base, hash, query, src;
+    var base, hash, modernBrowser, query, retinaQuery, retinaSrc, src;
     base = this.props.https ? "https://secure.gravatar.com/avatar/" : 'http://www.gravatar.com/avatar/';
     query = querystring.stringify({
-      s: isRetina() ? this.props.size * 2 : this.props.size,
+      s: this.props.size,
+      r: this.props.rating,
+      d: this.props["default"]
+    });
+    retinaQuery = querystring.stringify({
+      s: this.props.size * 2,
       r: this.props.rating,
       d: this.props["default"]
     });
@@ -1157,16 +1275,33 @@ module.exports = React.createClass({
       return React.createElement("script", null);
     }
     src = base + hash + "?" + query;
-    return React.createElement("img", React.__spread({}, this.props, {
-      "className": "react-gravatar " + this.props.className,
-      "src": src,
-      "height": this.props.size,
-      "width": this.props.size
-    }));
+    retinaSrc = base + hash + "?" + retinaQuery;
+    modernBrowser = true;
+    if (typeof window !== "undefined" && window !== null) {
+      modernBrowser = 'srcset' in document.createElement('img');
+    }
+    if (!modernBrowser && isRetina()) {
+      return React.createElement("img", {
+        "style": this.props.style,
+        "className": "react-gravatar " + this.props.className,
+        "src": retinaSrc,
+        "height": this.props.size,
+        "width": this.props.size
+      });
+    } else {
+      return React.createElement("img", {
+        "style": this.props.style,
+        "className": "react-gravatar " + this.props.className,
+        "src": src,
+        "srcSet": retinaSrc + " 2x",
+        "height": this.props.size,
+        "width": this.props.size
+      });
+    }
   }
 });
 
-},{"is-retina":19,"md5":20,"querystring":17,"react":undefined}],19:[function(require,module,exports){
+},{"is-retina":21,"md5":22,"querystring":19,"react":undefined}],21:[function(require,module,exports){
 module.exports = function() {
   var mediaQuery;
   if (typeof window !== "undefined" && window !== null) {
@@ -1181,7 +1316,7 @@ module.exports = function() {
   return false;
 };
 
-},{}],20:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 (function(){
   var crypt = require('crypt'),
       utf8 = require('charenc').utf8,
@@ -1343,7 +1478,7 @@ module.exports = function() {
 
 })();
 
-},{"charenc":21,"crypt":22,"is-buffer":23}],21:[function(require,module,exports){
+},{"charenc":23,"crypt":24,"is-buffer":25}],23:[function(require,module,exports){
 var charenc = {
   // UTF-8 encoding
   utf8: {
@@ -1378,7 +1513,7 @@ var charenc = {
 
 module.exports = charenc;
 
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 (function() {
   var base64map
       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
@@ -1476,7 +1611,7 @@ module.exports = charenc;
   module.exports = crypt;
 })();
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /**
  * Determine if an object is Buffer
  *

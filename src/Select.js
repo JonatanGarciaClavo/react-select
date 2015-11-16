@@ -3,6 +3,7 @@
 /* eslint react/jsx-sort-prop-types: 0, react/sort-comp: 0, react/prop-types: 0 */
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var Input = require('react-input-autosize');
 var classes = require('classnames');
 var Value = require('./Value');
@@ -126,8 +127,8 @@ var Select = React.createClass({
 			if (!this.state.isOpen) {
 				return;
 			}
-			var menuElem = React.findDOMNode(this.refs.selectMenuContainer);
-			var controlElem = React.findDOMNode(this.refs.control);
+			var menuElem = ReactDOM.findDOMNode(this.refs.selectMenuContainer);
+			var controlElem = ReactDOM.findDOMNode(this.refs.control);
 
 			var eventOccuredOutsideMenu = this.clickedOutsideElement(menuElem, event);
 			var eventOccuredOutsideControl = this.clickedOutsideElement(controlElem, event);
@@ -206,8 +207,8 @@ var Select = React.createClass({
 		}
 		if (this._focusedOptionReveal) {
 			if (this.refs.focused && this.refs.menu) {
-				var focusedDOM = React.findDOMNode(this.refs.focused);
-				var menuDOM = React.findDOMNode(this.refs.menu);
+				var focusedDOM = ReactDOM.findDOMNode(this.refs.focused);
+				var menuDOM = ReactDOM.findDOMNode(this.refs.menu);
 				var focusedRect = focusedDOM.getBoundingClientRect();
 				var menuRect = menuDOM.getBoundingClientRect();
 
@@ -269,7 +270,6 @@ var Select = React.createClass({
 	},
 
 	getFirstFocusableOption  (options) {
-
 		for (var optionIndex = 0; optionIndex < options.length; ++optionIndex) {
 			if (!options[optionIndex].disabled) {
 				return options[optionIndex];
@@ -301,7 +301,10 @@ var Select = React.createClass({
 						return options[key];
 					}
 				}
-				return { value: val, label: val };
+				return {
+					[this.props.valueKey]: val,
+					[this.props.labelKey]: val
+				};
 			} else {
 				return val;
 			}
@@ -365,7 +368,7 @@ var Select = React.createClass({
 
 	getInputNode  () {
 		var input = this.refs.input;
-		return this.props.searchable ? input : React.findDOMNode(input);
+		return this.props.searchable ? input : ReactDOM.findDOMNode(input);
 	},
 
 	fireChangeEvent (newState) {
@@ -448,9 +451,14 @@ var Select = React.createClass({
 	},
 
 	handleInputBlur (event) {
+		var menuDOM = ReactDOM.findDOMNode(this.refs.menu);
+		if (document.activeElement.isEqualNode(menuDOM)) {
+			return;
+		}
 		this._blurTimeout = setTimeout(() => {
 			if (this._focusAfterUpdate || !this.isMounted()) return;
 			this.setState({
+				inputValue: '',
 				isFocused: false,
 				isOpen: false
 			});
@@ -521,11 +529,9 @@ var Select = React.createClass({
 		// assign an internal variable because we need to use
 		// the latest value before setState() has completed.
 		this._optionsFilterString = event.target.value;
-
 		if (this.props.onInputChange) {
 			this.props.onInputChange(event.target.value);
 		}
-
 		if (this.props.asyncOptions) {
 			this.setState({
 				isLoading: true,
@@ -550,13 +556,13 @@ var Select = React.createClass({
 		this.setState({
 			isLoading: true
 		});
-		this.loadAsyncOptions((this.props.value || ''), { isLoading: false }, () => {
+		this.loadAsyncOptions('', { isLoading: false }, () => {
 			// update with new options but don't focus
 			this.setValue(this.props.value, false);
 		});
 	},
 
-	loadAsyncOptions (input, state, callback) {
+	loadAsyncOptions (input = '', state, callback) {
 		var thisRequestId = this._currentRequestId = requestId++;
 		if (this.props.cacheAsyncResults) {
 			for (var i = 0; i <= input.length; i++) {
@@ -581,7 +587,7 @@ var Select = React.createClass({
 			}
 		}
 
-		this.props.asyncOptions(input, (err, data) => {
+		var optionsResponseHandler = (err, data) => {
 			if (err) throw err;
 			if (this.props.cacheAsyncResults) {
 				this._optionsCache[input] = data;
@@ -601,10 +607,18 @@ var Select = React.createClass({
 				}
 			}
 			this.setState(newState);
-			if (callback) {
-				callback.call(this, newState);
-			}
-		});
+			if (callback) callback.call(this, newState);
+		};
+
+		var asyncOpts = this.props.asyncOptions(input, optionsResponseHandler);
+
+		if (asyncOpts && typeof asyncOpts.then === 'function') {
+			asyncOpts.then((data) => {
+				optionsResponseHandler(null, data)
+			}, (err) => {
+				optionsResponseHandler(err)
+			});
+		}
 	},
 
 	filterOptions (options, values) {
@@ -707,10 +721,13 @@ var Select = React.createClass({
 		}
 	},
 
+	renderOptionLabel (op) {
+		return op[this.props.labelKey];
+	},
+
 	buildMenu () {
 		var focusedValue = this.state.focusedOption ? this.state.focusedOption[this.props.valueKey] : null;
-		var renderLabel = this.props.optionRenderer;
-		if (!renderLabel) renderLabel = (op) => op[this.props.labelKey];
+		var renderLabel = this.props.optionRenderer || this.renderOptionLabel;
 		if (this.state.filteredOptions.length > 0) {
 			focusedValue = focusedValue == null ? this.state.filteredOptions[0] : focusedValue;
 		}
@@ -794,7 +811,7 @@ var Select = React.createClass({
 
 	render () {
 		var selectClass = classes('Select', this.props.className, {
-			'is-multi': this.props.multi,
+			'Select--multi': this.props.multi,
 			'is-searchable': this.props.searchable,
 			'is-open': this.state.isOpen,
 			'is-focused': this.state.isFocused,
@@ -806,19 +823,20 @@ var Select = React.createClass({
 		if (this.props.multi) {
 			if (this.props.removeOptionsFromList) {
 				this.state.values.forEach(function(val) {
-					var onOptionLabelClick = this.handleOptionLabelClick.bind(this, val);
-					var onRemove = this.removeValue.bind(this, val);
-					var valueComponent = React.createElement(this.props.valueComponent, {
-						key: val.value,
-						option: val,
-						renderer: this.props.valueRenderer,
-						optionLabelClick: !!this.props.onOptionLabelClick,
-						onOptionLabelClick: onOptionLabelClick,
-						onRemove: onRemove,
-						disabled: this.props.disabled
-					});
-					value.push(valueComponent);
-				}, this);
+				var renderLabel = this.props.valueRenderer || this.renderOptionLabel;
+				var onOptionLabelClick = this.handleOptionLabelClick.bind(this, val);
+				var onRemove = this.removeValue.bind(this, val);
+				var valueComponent = React.createElement(this.props.valueComponent, {
+					key: val[this.props.valueKey],
+					option: val,
+					renderer: renderLabel,
+					optionLabelClick: !!this.props.onOptionLabelClick,
+					onOptionLabelClick: onOptionLabelClick,
+					onRemove: onRemove,
+					disabled: this.props.disabled
+				});
+				value.push(valueComponent);
+			}, this);
 			} else {
 				if (!this.state.inputValue) {
 					var label = this.state.values.length + ' users';
@@ -858,8 +876,26 @@ var Select = React.createClass({
 			}
 		}
 
-		var loading = this.isLoading() ? <span className="Select-loading" aria-hidden="true" /> : null;
-		var clear = this.props.clearable && this.state.value && !this.props.disabled ? <span className="Select-clear" title={this.props.multi ? this.props.clearAllText : this.props.clearValueText} aria-label={this.props.multi ? this.props.clearAllText : this.props.clearValueText} onMouseDown={this.clearValue} onTouchEnd={this.clearValue} onClick={this.clearValue} dangerouslySetInnerHTML={{ __html: '&times;' }} /> : null;
+		// loading spinner
+		var loading = this.isLoading() ? (
+			<span className="Select-loading-zone" aria-hidden="true">
+				<span className="Select-loading" />
+			</span>
+		) : null;
+
+		// clear "x" button
+		var clear = (this.props.clearable && this.state.value && !this.props.disabled && !(this.isLoading())) ? (
+			<span className="Select-clear-zone" title={this.props.multi ? this.props.clearAllText : this.props.clearValueText} aria-label={this.props.multi ? this.props.clearAllText : this.props.clearValueText} onMouseDown={this.clearValue} onTouchEnd={this.clearValue} onClick={this.clearValue}>
+				<span className="Select-clear" dangerouslySetInnerHTML={{ __html: '&times;' }} />
+			</span>
+		) : null;
+
+		// indicator arrow
+		var arrow = (
+			<span className="Select-arrow-zone" onMouseDown={this.handleMouseDownOnArrow}>
+				<span className="Select-arrow" onMouseDown={this.handleMouseDownOnArrow} />
+			</span>
+		);
 
 		var menu;
 		var menuProps;
@@ -906,16 +942,14 @@ var Select = React.createClass({
 				<div className="Select-control" ref="control" onKeyDown={this.handleKeyDown} onMouseDown={this.handleMouseDown} onTouchEnd={this.handleMouseDown}>
 					{value}
 					{input}
-					<span className="Select-arrow-zone" onMouseDown={this.handleMouseDownOnArrow} />
-					<span className="Select-arrow" onMouseDown={this.handleMouseDownOnArrow} />
 					{loading}
 					{clear}
+					{arrow}
 				</div>
 				{menu}
 			</div>
 		);
 	}
-
 });
 
 module.exports = Select;
