@@ -819,7 +819,7 @@ var Select = React.createClass({
 		if (this.props.multi && !this.props.removeOptionsFromList) {
 			var valuesSplited = this.state.value.split(',');
 			var isSelected = false;
-			forEach(valuesSplited, function (value) {
+			valuesSplited.forEach(function (value) {
 				if (value === valueKey) {
 					isSelected = true;
 					return false;
