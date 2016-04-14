@@ -245,6 +245,24 @@ var Select = React.createClass({
 		searchingText: React.PropTypes.string, // message to display whilst options are loading via asyncOptions
 		searchPromptText: React.PropTypes.string, // label to prompt for search input
 		singleValueComponent: React.PropTypes.func, // single value component when multiple is set to false
+		style: {
+			arrow: {},
+			arrowZone: {},
+			clear: {},
+			clearZone: {},
+			disabled: {},
+			focused: {},
+			isOpen: {},
+			loading: {},
+			loadingZone: {},
+			placeholder: {},
+			searchable: {},
+			selectControl: {},
+			selectInput: {},
+			selectMenu: {},
+			selectMenuOuter: {},
+			wrapper: {}
+		},
 		value: React.PropTypes.any, // initial field value
 		valueComponent: React.PropTypes.func, // value component to render in multiple mode
 		valueKey: React.PropTypes.string, // path of the label value in option objects
@@ -927,7 +945,7 @@ var Select = React.createClass({
 	},
 
 	isSelected: function isSelected(valueKey) {
-		if (this.props.multi && !this.props.removeOptionsFromList) {
+		if (this.props.multi) {
 			var valuesSplited = this.state.value.split(',');
 			var isSelected = false;
 			valuesSplited.forEach(function (value) {
@@ -1065,7 +1083,8 @@ var Select = React.createClass({
 						var singleValueComponent = React.createElement(this.props.singleValueComponent, {
 							key: 'placeholder',
 							value: null,
-							placeholder: this.state.placeholder
+							placeholder: this.state.placeholder,
+							style: this.props.style.placeholder
 						});
 						value.push(singleValueComponent);
 					}
@@ -1085,7 +1104,8 @@ var Select = React.createClass({
 				var singleValueComponent = React.createElement(this.props.singleValueComponent, {
 					key: 'placeholder',
 					value: val,
-					placeholder: this.state.placeholder
+					placeholder: this.state.placeholder,
+					style: this.props.style.placeholder
 				});
 				value.push(singleValueComponent);
 			}
@@ -1094,22 +1114,22 @@ var Select = React.createClass({
 		// loading spinner
 		var loading = this.isLoading() ? React.createElement(
 			'span',
-			{ className: 'Select-loading-zone', 'aria-hidden': 'true' },
-			React.createElement('span', { className: 'Select-loading' })
+			{ className: 'Select-loading-zone', 'aria-hidden': 'true', style: this.props.style.loadingZone },
+			React.createElement('span', { className: 'Select-loading', style: this.props.style.loading })
 		) : null;
 
 		// clear "x" button
 		var clear = this.props.clearable && this.state.value && !this.props.disabled && !this.isLoading() ? React.createElement(
 			'span',
-			{ className: 'Select-clear-zone', title: this.props.multi ? this.props.clearAllText : this.props.clearValueText, 'aria-label': this.props.multi ? this.props.clearAllText : this.props.clearValueText, onMouseDown: this.clearValue, onTouchEnd: this.clearValue, onClick: this.clearValue },
-			React.createElement('span', { className: 'Select-clear', dangerouslySetInnerHTML: { __html: '&times;' } })
+			{ className: 'Select-clear-zone', title: this.props.multi ? this.props.clearAllText : this.props.clearValueText, 'aria-label': this.props.multi ? this.props.clearAllText : this.props.clearValueText, onMouseDown: this.clearValue, onTouchEnd: this.clearValue, onClick: this.clearValue, style: this.props.style.clearZone },
+			React.createElement('span', { className: 'Select-clear', dangerouslySetInnerHTML: { __html: '&times;' }, style: this.props.style.clear })
 		) : null;
 
 		// indicator arrow
 		var arrow = React.createElement(
 			'span',
-			{ className: 'Select-arrow-zone', onMouseDown: this.handleMouseDownOnArrow },
-			React.createElement('span', { className: 'Select-arrow', onMouseDown: this.handleMouseDownOnArrow })
+			{ className: 'Select-arrow-zone', onMouseDown: this.handleMouseDownOnArrow, style: this.props.style.arrowZone },
+			React.createElement('span', { className: 'Select-arrow', onMouseDown: this.handleMouseDownOnArrow, style: this.props.style.arrow })
 		);
 
 		var menu;
@@ -1118,11 +1138,12 @@ var Select = React.createClass({
 			menuProps = {
 				ref: 'menu',
 				className: 'Select-menu',
-				onMouseDown: this.handleMouseDownOnMenu
+				onMouseDown: this.handleMouseDownOnMenu,
+				style: this.props.style.selectMenu
 			};
 			menu = React.createElement(
 				'div',
-				{ ref: 'selectMenuContainer', className: 'Select-menu-outer' },
+				{ ref: 'selectMenuContainer', className: 'Select-menu-outer', style: this.props.style.selectMenuOuter },
 				React.createElement(
 					'div',
 					menuProps,
@@ -1137,7 +1158,8 @@ var Select = React.createClass({
 			className: 'Select-input ' + (this.props.inputProps.className || ''),
 			tabIndex: this.props.tabIndex || 0,
 			onFocus: this.handleInputFocus,
-			onBlur: this.handleInputBlur
+			onBlur: this.handleInputBlur,
+			style: this.props.style.selectInput
 		};
 		for (var key in this.props.inputProps) {
 			if (this.props.inputProps.hasOwnProperty(key) && key !== 'className') {
@@ -1158,18 +1180,23 @@ var Select = React.createClass({
 		} else if (!this.props.multi || !this.state.values.length) {
 			input = React.createElement(
 				'div',
-				{ className: 'Select-input' },
+				{ className: 'Select-input', style: this.props.style.selectInput },
 				' '
 			);
 		}
 
+		var styling = this.state.isFocused ? this.props.style.focused : this.props.style.selectControl;
+		styling = this.state.isOpen ? this.props.style.isOpen : styling;
+		styling = this.state.searchable ? this.props.style.searchable : styling;
+		styling = this.state.disabled ? this.props.style.disabled : styling;
+
 		return React.createElement(
 			'div',
-			{ ref: 'wrapper', className: selectClass },
+			{ ref: 'wrapper', className: selectClass, style: this.props.style.wrapper },
 			React.createElement('input', { type: 'hidden', ref: 'value', name: this.props.name, value: this.state.value, disabled: this.props.disabled }),
 			React.createElement(
 				'div',
-				{ className: 'Select-control', ref: 'control', onKeyDown: this.handleKeyDown, onMouseDown: this.handleMouseDown, onTouchEnd: this.handleMouseDown },
+				{ className: 'Select-control', ref: 'control', onKeyDown: this.handleKeyDown, onMouseDown: this.handleMouseDown, onTouchEnd: this.handleMouseDown, style: styling },
 				value,
 				input,
 				loading,
